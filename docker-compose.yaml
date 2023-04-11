@@ -1,0 +1,48 @@
+version: "3.7"
+
+services:
+  jaeger:
+    image: quay.io/jaegertracing/all-in-one:latest
+    restart: always
+    environment:
+      LOG_LEVEL: debug
+      COLLECTOR_OTLP_ENABLED: 'true'
+    ports:
+      - "${JARGER_WEBUI_PORT:-16686}:16686"
+      - "${OTLP_EXPORTER_PORT:-4317}:4317"
+
+  downloader:
+    build:
+      context: ./src/downloader
+    command: /usr/local/bin/download.sh
+    image: oci.local/${ORGANIZATION}/${PROJECT_NAME}/downloader:${APP_VERSION}
+    restart: no
+    volumes:
+      - ./.docker/downloader/models:/usr/share/gpt4all/models
+
+  ui:
+    build:
+      context: ./src/ui
+      args:
+        APP_VERSION: ${APP_VERSION}
+    # command: tail -f /dev/null
+    # command: hypercorn --bind 0.0.0.0:9600 asgi:asyncio_app
+    # command: ["gunicorn", "--bind", "0.0.0.0:9600", "wsgi:app", "--db_path", "data/database.db"]
+    command: ["python3", "app.py", "--host=0.0.0.0", "--port=9600", "--db_path", "data/database.db"]
+    depends_on:
+      jaeger:
+        condition: service_started
+      downloader:
+        condition: service_completed_successfully
+    image: oci.local/${ORGANIZATION}/${PROJECT_NAME}/ui:${APP_VERSION}
+    ports:
+      - "9600:9600"
+    environment:
+      TZ: Canada/Montreal
+      # OTLP GRPC
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://jaeger:4317}
+      OTEL_EXPORTER_OTLP_INSECURE: ${OTEL_EXPORTER_OTLP_INSECURE:-true}
+    restart: on-failure:5
+    volumes:
+      - ./.docker/ui/data:/usr/share/gpt4all-ui/data
+      - ./.docker/downloader/models:/usr/share/gpt4all-ui/models
