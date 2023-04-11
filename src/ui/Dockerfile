@@ -3,11 +3,11 @@ FROM docker.io/amd64/python:3.10
 ARG IMAGE_VERSION \
     ORGANISATION='testruction'
 
-LABEL org.opencontainers.image.title "gpt4all-ui"
-LABEL org.opencontainers.image.description "An ecosystem of open-source chatbots trained on a massive collections of clean assistant data including code, stories and dialogue"
-LABEL org.opencontainers.image.version "${IMAGE_VERSION}"
-LABEL org.opencontainers.image.authors "Florian JUDITH <florian.judith.b@gmail.com>"
-LABEL org.opencontainers.image.source "https://github.com/${ORGANISATION}/gpt4all-container"
+LABEL org.opencontainers.image.title "gpt4all-ui" \
+      org.opencontainers.image.description "An ecosystem of open-source chatbots trained on a massive collections of clean assistant data including code, stories and dialogue" \
+      org.opencontainers.image.version "${IMAGE_VERSION}" \
+      org.opencontainers.image.authors "Florian JUDITH <florian.judith.b@gmail.com>" \
+      org.opencontainers.image.source "https://github.com/${ORGANISATION}/gpt4all-container"
 
 # Create gpt4all user
 RUN groupadd --system --gid 1234 gpt4all \
