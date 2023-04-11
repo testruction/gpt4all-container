@@ -27,8 +27,6 @@ jobs:
           - downloader
 
     steps:
-      # - uses: FranzDiebold/github-env-vars-action@v1.2.1
-
       - name: Checkout code base
         uses: actions/checkout@v3
 
@@ -42,7 +40,7 @@ jobs:
       
       - name: Set ENV variables
         run: |
-          echo "VERSION=$(cat ./src/${{ matrix.image }}/VERSION)" >> $GITHUB_ENV
+          echo "VERSION=$(cat ./VERSION)" >> $GITHUB_ENV
           echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-8)" >> $GITHUB_ENV
 
       - name: Login to DockerHub
